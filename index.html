@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unscroll</title>
+<meta name="description" content="Small, quiet activities for an ADHD mind to come down after scrolling.">
+<meta name="theme-color" content="#14181f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2eee6" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%239cc3a5' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%239cc3a5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14181f; --bg2:#1a2029; --card:#1e252f; --line:#2d3541;
+  --text:#e8e3da; --muted:#9aa3ae; --accent:#9cc3a5; --accent2:#b7a9d6; --warm:#e2c290;
+  --accent-ink:#0f1a13;
+  --radius:22px;
+  --serif:'Fraunces', Georgia, serif;
+  --sans:'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: light){
+  :root{ --bg:#f2eee6; --bg2:#e9e4da; --card:#fbf9f4; --line:#dcd5c8; --text:#2a2926; --muted:#6c6a64;
+         --accent:#4f7d62; --accent2:#7a68a8; --warm:#a8772a; --accent-ink:#f7f5ef; }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans); color:var(--text); background-color:var(--bg);
+  min-height:100dvh; line-height:1.55; font-size:17px;
+  background-image:
+    radial-gradient(1100px 600px at 85% -10%, color-mix(in srgb, var(--accent2) 11%, transparent), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%);
+  background-attachment:fixed;
+}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+
+.wrap{max-width:880px;margin:0 auto;padding:0 16px}
+.narrow{max-width:560px}
+.center{text-align:center}
+.muted{color:var(--muted)}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:880px;margin:0 auto;padding:16px}
+.brand{font-family:var(--serif);font-weight:500;font-size:1.3rem;text-decoration:none;display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
+.brand svg{width:26px;height:26px;color:var(--accent)}
+.pill{border:1px solid var(--line);background:transparent;border-radius:999px;padding:9px 16px;min-height:44px;display:inline-flex;align-items:center;gap:8px;font-size:.95rem;transition:background .3s,border-color .3s,color .3s}
+.pill svg{width:18px;height:18px}
+.pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* flow bar */
+.flowbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--bg) 82%, transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.flowbar-in{display:flex;align-items:center;gap:14px;padding:10px 16px;font-size:.92rem}
+.fb-label{flex:1;color:var(--muted)}
+.fb-label strong{color:var(--text);font-weight:700}
+.fb-dots{display:flex;gap:6px}
+.fb-dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:background .4s}
+.fb-dots i.on{background:var(--accent)}
+.link{background:none;border:none;color:var(--muted);text-decoration:underline;text-underline-offset:3px;padding:8px 4px;min-height:40px}
+
+/* type */
+h1{font-family:var(--serif);font-weight:300;font-size:clamp(2.1rem,7vw,3.4rem);line-height:1.08;letter-spacing:-.015em}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,5.5vw,2.3rem);line-height:1.15;letter-spacing:-.01em}
+.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.75rem;color:var(--accent);font-weight:700;margin-bottom:12px}
+.lede{color:var(--muted);font-size:1.08rem;max-width:40ch;margin-top:16px}
+.note{color:var(--muted);margin-top:6px}
+.section-label{font-family:var(--sans);font-size:.8rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:44px 0 14px;font-weight:700}
+
+/* home */
+.hero{padding:28px 0 8px}
+.start-card{margin-top:28px;width:100%;display:flex;align-items:center;gap:16px;text-align:left;
+  background:var(--accent);color:var(--accent-ink);border:none;border-radius:var(--radius);padding:20px 22px;
+  box-shadow:0 18px 50px -20px color-mix(in srgb, var(--accent) 70%, transparent);transition:transform .4s ease}
+.start-card:hover{transform:translateY(-2px)}
+.start-card .sc-icon{flex:none;width:52px;height:52px;border-radius:50%;background:color-mix(in srgb, var(--accent-ink) 12%, transparent);display:grid;place-items:center}
+.start-card .sc-icon svg{width:26px;height:26px}
+.start-card strong{display:block;font-family:var(--serif);font-weight:500;font-size:1.3rem;line-height:1.2}
+.start-card small{display:block;font-size:.95rem;opacity:.8;margin-top:4px}
+.start-card .arrow{margin-left:auto;font-size:1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-decoration:none;display:flex;flex-direction:column;gap:6px;transition:transform .4s ease,border-color .4s}
+.card:hover{transform:translateY(-2px);border-color:color-mix(in srgb, var(--accent) 60%, var(--line))}
+.card .ic{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb, var(--c, var(--accent)) 16%, transparent);color:var(--c, var(--accent));margin-bottom:8px}
+.card .ic svg{width:22px;height:22px}
+.card h3{font-family:var(--serif);font-weight:500;font-size:1.2rem}
+.card p{color:var(--muted);font-size:.95rem}
+.card .meta{margin-top:auto;padding-top:8px;font-size:.8rem;color:var(--muted);letter-spacing:.04em}
+footer{margin:56px 0 40px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem;display:grid;gap:6px}
+
+/* shared view bits */
+.view{padding-bottom:56px;animation:fadein .6s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.back{display:inline-block;color:var(--muted);text-decoration:none;font-size:.95rem;padding:10px 0;margin-bottom:6px}
+.btn{background:var(--accent);color:var(--accent-ink);border:none;border-radius:999px;padding:13px 28px;min-height:48px;font-weight:700;font-size:1rem;transition:transform .3s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);font-weight:400}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:8px 15px;min-height:42px;font-size:.92rem;transition:all .3s}
+.chip[aria-pressed="true"]{background:color-mix(in srgb, var(--accent) 18%, transparent);border-color:var(--accent)}
+.tip{color:var(--muted);font-size:.9rem;text-align:center;max-width:44ch;margin:26px auto 0}
+
+/* breathe */
+.breath-stage{position:relative;width:min(76vw,340px);aspect-ratio:1;margin:26px auto 10px;display:grid;place-items:center}
+.breath-guide{position:absolute;inset:0;border-radius:50%;border:1.5px dashed var(--line)}
+.breath-disc{position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--accent) 55%, transparent), color-mix(in srgb, var(--accent) 14%, transparent) 72%);
+  box-shadow:0 0 90px color-mix(in srgb, var(--accent) 30%, transparent);transform:scale(.42);will-change:transform}
+.breath-label{position:relative;text-align:center;padding:0 20px}
+#b-phase{font-family:var(--serif);font-size:1.45rem;line-height:1.2}
+#b-count{color:var(--muted);font-size:1rem;margin-top:4px;min-height:1.5em;font-variant-numeric:tabular-nums}
+#b-left{min-height:1.5em;font-variant-numeric:tabular-nums}
+
+/* park */
+.stream{position:relative;height:min(42vh,360px);margin-top:20px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--accent2) 9%, var(--bg2)), var(--bg2))}
+.stream::before{content:"";position:absolute;inset:-30% -60%;
+  background:repeating-linear-gradient(172deg, transparent 0 26px, color-mix(in srgb, var(--text) 5%, transparent) 26px 27px);
+  animation:drift 40s linear infinite}
+@keyframes drift{to{transform:translateX(30%)}}
+.stream-empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:.95rem;padding:20px;text-align:center;transition:opacity .6s}
+.thought{position:absolute;left:0;top:0;padding:10px 18px;border-radius:999px;background:var(--card);border:1px solid var(--line);
+  max-width:72%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 26px rgba(0,0,0,.18);font-size:.98rem}
+.park-form{display:flex;gap:8px;margin-top:16px}
+.park-form input{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:12px 18px;font:inherit;min-height:48px}
+.park-form input:focus{outline:none;border-color:var(--accent)}
+#p-count{min-height:1.5em;margin-top:12px;text-align:center;color:var(--muted);font-size:.92rem}
+details.saved{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 18px}
+details.saved summary{cursor:pointer;font-weight:700;font-size:.95rem}
+details.saved ul{list-style:none;margin-top:10px;display:grid;gap:6px}
+details.saved li{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+details.saved li span{flex:1}
+details.saved li button{background:none;border:none;color:var(--muted);width:36px;height:36px;border-radius:50%}
+
+/* canvases */
+.canvas-box{position:relative;height:min(58vh,520px);margin-top:18px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:var(--bg2);touch-action:none;user-select:none;-webkit-user-select:none}
+.canvas-box canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.canvas-status{position:absolute;left:0;right:0;bottom:14px;text-align:center;color:var(--muted);font-size:.92rem;pointer-events:none;padding:0 16px;font-variant-numeric:tabular-nums}
+.meter{width:min(240px,60%);height:6px;border-radius:6px;background:var(--line);margin:14px auto 0;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg, var(--accent2), var(--warm));border-radius:6px;transition:width .2s}
+
+/* ground */
+.ground-stage{text-align:center;margin-top:24px}
+.g-prog{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+.g-prog i{width:28px;height:4px;border-radius:4px;background:var(--line);transition:background .4s}
+.g-prog i.on{background:var(--warm)}
+.g-num{font-family:var(--serif);font-weight:300;font-size:clamp(5.5rem,24vw,9rem);line-height:1;color:var(--warm);animation:fadein .7s ease}
+.g-label{font-family:var(--serif);font-size:1.5rem;margin-top:6px}
+.g-hint{color:var(--muted);max-width:36ch;margin:8px auto 0}
+.taps{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.taps button{width:54px;height:54px;border-radius:50%;border:2px solid var(--line);background:transparent;transition:all .35s ease}
+.taps button.on{background:var(--warm);border-color:var(--warm);transform:scale(1.06)}
+.g-end{text-align:center;margin-top:60px;animation:fadein 1s ease}
+
+/* eyes overlay */
+.dim{position:fixed;inset:0;z-index:50;background:#07090c;color:#d6d0c6;display:grid;place-items:center;padding:24px;text-align:center}
+.dim h2{color:#ece6dc}
+.dim p{color:#9a958c;max-width:34ch;margin:12px auto 0;font-size:1.05rem}
+.dim .bar{width:min(260px,70vw);height:3px;background:#22262c;border-radius:3px;margin:34px auto 0;overflow:hidden}
+.dim .bar i{display:block;height:100%;width:0;background:#7f9a86}
+.dim .link{color:#6f6b64;margin-top:30px}
+.dim .step-n{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:#6f6b64;margin-bottom:14px}
+
+/* check-in */
+.scale{display:flex;justify-content:center;gap:10px;margin-top:28px;flex-wrap:wrap}
+.scale button{width:58px;height:58px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-family:var(--serif);font-size:1.4rem;transition:all .3s}
+.scale button:hover{border-color:var(--accent)}
+.scale-ends{display:flex;justify-content:space-between;max-width:340px;margin:10px auto 0;color:var(--muted);font-size:.85rem}
+.result{margin-top:30px;font-size:1.1rem;max-width:40ch;margin-left:auto;margin-right:auto}
+.result strong{font-family:var(--serif);font-weight:400;font-size:2rem;display:block;margin-bottom:8px}
+
+@media (prefers-reduced-motion: reduce){
+  .stream::before{animation:none}
+  .view,.g-num,.g-end{animation:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="#home" aria-label="Unscroll home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>
+    unscroll
+  </a>
+  <button class="pill" id="noise" aria-pressed="false" title="Play soft brown noise">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2"/></svg>
+    Brown noise
+  </button>
+</header>
+
+<div class="flowbar" id="flowbar" hidden>
+  <div class="wrap flowbar-in">
+    <span class="fb-label" id="fb-label"></span>
+    <span class="fb-dots" id="fb-dots"></span>
+    <button class="link" id="fb-skip">Skip</button>
+    <button class="link" id="fb-stop">Stop</button>
+  </div>
+</div>
+
+<main>
+
+<!-- HOME -->
+<section class="view" id="v-home">
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow">For the minute after the feed</p>
+      <h1>Your head is still scrolling.<br>Let it stop.</h1>
+      <p class="lede">Small, quiet things to do with your hands and eyes while your brain catches up. Nothing to sign up for, nothing to keep a streak on.</p>
+      <button class="start-card" id="start-reset">
+        <span class="sc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 5l11 7-11 7z"/></svg></span>
+        <span><strong>Start the 5-minute reset</strong><small>Breathe, park what's looping, follow one slow thing, land back in the room.</small></span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+
+    <h3 class="section-label">Or pick one</h3>
+    <div class="grid">
+      <a class="card" href="#breathe">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></span>
+        <h3>Breathe</h3><p>A circle to breathe with. Longer out than in.</p><span class="meta">1–5 MIN</span>
+      </a>
+      <a class="card" href="#park" style="--c:var(--accent2)">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.3 10.1 4 4 0 0 0 7 18z"/></svg></span>
+        <h3>Park a thought</h3><p>Type what's looping. Watch it drift off. Save it for later if it matters.</p><span class="meta">AS LONG AS YOU LIKE</span>
+      </a>
+      <a class="card" href="#follow">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12c3-6 6 6 9 0s6 6 9 0"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg></span>
+        <h3>Follow the dot</h3><p>One slow thing to keep your eyes on, after a hundred fast ones.</p><span class="meta">1–3 MIN</span>
+      </a>
+      <a class="card" href="#lines" style="--c:var(--warm)">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 17c4-1 4-9 8-9s3 8 8 7"/></svg></span>
+        <h3>Slow lines</h3><p>Draw with a finger. The slower you move, the brighter it glows.</p><span class="meta">FOR RESTLESS HANDS</span>
+      </a>
+      <a class="card" href="#ground" style="--c:var(--warm)">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h16"/><path d="M12 20v-6"/><path d="M12 14c-4 0-6-3-6-7 4 0 6 3 6 7zM12 14c0-4 2-7 6-7 0 4-2 7-6 7z"/></svg></span>
+        <h3>5 · 4 · 3 · 2 · 1</h3><p>Find your way back into the room, one sense at a time.</p><span class="meta">2 MIN</span>
+      </a>
+      <a class="card" href="#eyes" style="--c:var(--accent2)">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+        <h3>Rest your eyes</h3><p>Ninety seconds off the screen. A chime tells you when.</p><span class="meta">90 SEC</span>
+      </a>
+    </div>
+
+    <footer>
+      <span>No accounts, no tracking. Anything you save stays in this browser.</span>
+      <span>This is a calm-down tool, not treatment. If racing thoughts or restlessness are wearing you down day to day, an ADHD clinician can help.</span>
+    </footer>
+  </div>
+</section>
+
+<!-- CHECK IN -->
+<section class="view" id="v-checkin" hidden>
+  <div class="wrap narrow center" style="padding-top:40px">
+    <p class="eyebrow">Before we start</p>
+    <h2>How loud is your head right now?</h2>
+    <div class="scale" id="ci-scale"></div>
+    <div class="scale-ends"><span>quiet</span><span>racing</span></div>
+    <p class="tip">Just a number. You'll check again at the end.</p>
+  </div>
+</section>
+
+<!-- BREATHE -->
+<section class="view" id="v-breathe" hidden>
+  <div class="wrap">
+    <a class="back" href="#home">← All activities</a>
+    <h2>Breathe</h2>
+    <p class="note" id="b-note">In for 4, out for 6.</p>
+    <div class="breath-stage">
+      <div class="breath-guide"></div>
+      <div class="breath-disc" id="b-disc"></div>
+      <div class="breath-label"><div id="b-phase">Ready when you are</div><div id="b-count"></div></div>
+    </div>
+    <p class="center muted" id="b-left"></p>
+    <div class="row"><button class="btn" id="b-start">Start</button></div>
+    <div id="b-controls">
+      <div class="chips" role="group" aria-label="Pattern" id="b-patterns">
+        <button class="chip" data-p="long" aria-pressed="true">Long exhale</button>
+        <button class="chip" data-p="sigh" aria-pressed="false">Double-in sigh</button>
+        <button class="chip" data-p="box" aria-pressed="false">Box</button>
+      </div>
+      <div class="chips" role="group" aria-label="Length" id="b-lengths">
+        <button class="chip" data-m="1" aria-pressed="false">1 min</button>
+        <button class="chip" data-m="3" aria-pressed="true">3 min</button>
+        <button class="chip" data-m="5" aria-pressed="false">5 min</button>
+        <button class="chip" data-m="0" aria-pressed="false">No timer</button>
+      </div>
+      <div class="chips">
+        <button class="chip" id="b-tones" aria-pressed="false">Soft tones</button>
+        <button class="chip" id="b-buzz" aria-pressed="false" hidden>Buzz on change</button>
+      </div>
+    </div>
+    <p class="tip">Once you've got the rhythm, close your eyes. Tones (or buzz, on Android) let you follow without looking.</p>
+  </div>
+</section>
+
+<!-- PARK -->
+<section class="view" id="v-park" hidden>
+  <div class="wrap">
+    <a class="back" href="#home">← All activities</a>
+    <h2>Park a thought</h2>
+    <p class="note">You don't have to solve it now. Name it, then let it go by.</p>
+    <div class="stream" id="p-stream"><div class="stream-empty" id="p-empty">Thoughts you let go of drift through here.</div></div>
+    <form class="park-form" id="p-form" autocomplete="off">
+      <input id="p-input" type="text" maxlength="120" placeholder="What's looping?" aria-label="A thought to let go of">
+      <button class="btn" type="submit">Let go</button>
+    </form>
+    <div class="row" style="margin-top:10px">
+      <button class="btn ghost" id="p-save" type="button">Save for later instead</button>
+      <button class="btn" id="p-done" type="button" hidden>I'm done →</button>
+    </div>
+    <p id="p-count"></p>
+    <details class="saved" id="p-savedwrap" hidden>
+      <summary id="p-savedsum">Saved for later</summary>
+      <ul id="p-saved"></ul>
+      <div class="row" style="justify-content:flex-start;margin-top:8px"><button class="link" id="p-clear" type="button">Clear all</button></div>
+    </details>
+  </div>
+</section>
+
+<!-- FOLLOW -->
+<section class="view" id="v-follow" hidden>
+  <div class="wrap">
+    <a class="back" href="#home">← All activities</a>
+    <h2>Follow the dot</h2>
+    <p class="note">Keep a finger on it, or just your eyes. Nothing else to do.</p>
+    <div class="canvas-box" id="f-box"><canvas id="f-canvas"></canvas><div class="canvas-status" id="f-stat"></div></div>
+    <div class="chips" role="group" aria-label="Speed" id="f-speeds">
+      <button class="chip" data-s="0.085" aria-pressed="false">Slow</button>
+      <button class="chip" data-s="0.06" aria-pressed="true">Slower</button>
+      <button class="chip" data-s="0.04" aria-pressed="false">Slowest</button>
+    </div>
+  </div>
+</section>
+
+<!-- SLOW LINES -->
+<section class="view" id="v-lines" hidden>
+  <div class="wrap">
+    <a class="back" href="#home">← All activities</a>
+    <h2>Slow lines</h2>
+    <p class="note">Draw anywhere. Fast strokes barely show. Slow ones glow. Everything fades on its own.</p>
+    <div class="canvas-box" id="l-box"><canvas id="l-canvas"></canvas><div class="canvas-status" id="l-hint">Put a finger down and move slowly</div></div>
+    <div class="meter" aria-hidden="true"><i id="l-meter"></i></div>
+    <div class="row"><button class="btn ghost" id="l-clear">Clear</button></div>
+  </div>
+</section>
+
+<!-- GROUND -->
+<section class="view" id="v-ground" hidden>
+  <div class="wrap">
+    <a class="back" href="#home">← All activities</a>
+    <h2>5 · 4 · 3 · 2 · 1</h2>
+    <p class="note">Tap a circle for each one you find. Take your time.</p>
+    <div class="ground-stage" id="g-stage">
+      <div class="g-prog" id="g-prog"></div>
+      <div class="g-num" id="g-num">5</div>
+      <div class="g-label" id="g-label"></div>
+      <p class="g-hint" id="g-hint"></p>
+      <div class="taps" id="g-taps"></div>
+    </div>
+    <div class="g-end" id="g-end" hidden>
+      <h2>You're here.</h2>
+      <p class="note">In this room, in this body, right now.</p>
+      <div class="row" id="g-endbtns"><button class="btn ghost" id="g-again">Again</button><a class="btn" href="#home" style="text-decoration:none">Done</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- EYES -->
+<section class="view" id="v-eyes" hidden>
+  <div class="wrap narrow center" style="padding-top:20px">
+    <a class="back" href="#home" style="display:block;text-align:left">← All activities</a>
+    <h2>Rest your eyes</h2>
+    <p class="note" style="max-width:40ch;margin:8px auto 0">Four short steps, about ninety seconds. The screen goes dark and a soft chime marks each change, so you can stop looking at it.</p>
+    <div class="row" style="margin-top:28px"><button class="btn" id="e-start">Begin</button></div>
+    <p class="tip">Turn your volume up a little first.</p>
+  </div>
+</section>
+
+<!-- CHECK OUT -->
+<section class="view" id="v-checkout" hidden>
+  <div class="wrap narrow center" style="padding-top:40px">
+    <div id="co-ask">
+      <p class="eyebrow">Last thing</p>
+      <h2>How loud is your head now?</h2>
+      <div class="scale" id="co-scale"></div>
+      <div class="scale-ends"><span>quiet</span><span>racing</span></div>
+    </div>
+    <div id="co-result" hidden>
+      <p class="result" id="co-text"></p>
+      <div class="row"><a class="btn ghost" href="#lines" style="text-decoration:none">Slow lines</a><a class="btn" href="#home" style="text-decoration:none">Done</a></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="dim" id="e-dim" hidden>
+  <div>
+    <div class="step-n" id="e-n"></div>
+    <h2 id="e-title"></h2>
+    <p id="e-text"></p>
+    <div class="bar"><i id="e-bar"></i></div>
+    <button class="link" id="e-stop">Stop</button>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('unscroll:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('unscroll:' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const rgb = hex => { hex = hex.replace('#', ''); if (hex.length === 3) hex = hex.split('').map(c => c + c).join(''); const n = parseInt(hex, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${Math.max(0, Math.min(1, a)).toFixed(3)})`;
+const lerpC = (a, b, t) => [0, 1, 2].map(i => Math.round(a[i] + (b[i] - a[i]) * t));
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const canVibrate = 'vibrate' in navigator;
+const buzz = p => { if (canVibrate) try { navigator.vibrate(p); } catch (e) {} };
+
+let wakeLock = null;
+async function keepAwake(on) {
+  try {
+    if (on && 'wakeLock' in navigator && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch (e) {}
+}
+
+function fitCanvas(box, cv) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const r = box.getBoundingClientRect();
+  cv.width = Math.max(1, Math.round(r.width * dpr));
+  cv.height = Math.max(1, Math.round(r.height * dpr));
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w: r.width, h: r.height };
+}
+
+/* ---------- sound (all generated, nothing downloaded) ---------- */
+const Sound = (() => {
+  let ctx = null, noiseSrc = null, noiseGain = null;
+  function ensure() {
+    if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function brownBuffer(c) {
+    const sr = c.sampleRate, len = sr * 8, fade = Math.floor(sr * 0.5);
+    const x = new Float32Array(len + fade); let last = 0;
+    for (let i = 0; i < x.length; i++) { const w = Math.random() * 2 - 1; last = (last + 0.02 * w) / 1.02; x[i] = last * 3.5; }
+    const buf = c.createBuffer(1, len, sr), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = x[i];
+    for (let i = 0; i < fade; i++) { const t = i / fade; d[i] = x[i] * t + x[len + i] * (1 - t); } // seamless loop
+    return buf;
+  }
+  function noise(on) {
+    const c = ensure(); if (!c) return false;
+    if (on && !noiseSrc) {
+      noiseSrc = c.createBufferSource(); noiseSrc.buffer = brownBuffer(c); noiseSrc.loop = true;
+      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 800;
+      noiseGain = c.createGain(); noiseGain.gain.value = 0;
+      noiseSrc.connect(lp).connect(noiseGain).connect(c.destination);
+      noiseSrc.start();
+      noiseGain.gain.setTargetAtTime(0.32, c.currentTime, 0.9);
+    } else if (!on && noiseSrc) {
+      const s = noiseSrc, g = noiseGain; noiseSrc = null;
+      g.gain.setTargetAtTime(0, c.currentTime, 0.4);
+      setTimeout(() => { try { s.stop(); } catch (e) {} }, 2500);
+    }
+    return true;
+  }
+  function tone(f1, f2, dur, vol) {
+    const c = ensure(); if (!c) return;
+    const o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f1, t); o.frequency.linearRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + Math.min(0.8, dur / 3));
+    g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function chime() { tone(528, 528, 2.4, 0.07); setTimeout(() => tone(792, 792, 2.4, 0.04), 160); }
+  return { ensure, noise, tone, chime };
+})();
+
+const noiseBtn = $('#noise');
+noiseBtn.addEventListener('click', () => {
+  const on = noiseBtn.getAttribute('aria-pressed') !== 'true';
+  if (Sound.noise(on)) noiseBtn.setAttribute('aria-pressed', String(on));
+});
+
+/* ---------- routing + guided reset ---------- */
+const views = {};
+let current = null;
+const flow = { active: false, i: 0, before: null, after: null,
+  steps: ['checkin', 'breathe', 'park', 'follow', 'ground', 'checkout'] };
+const stepNames = { checkin: 'Check in', breathe: 'Breathe', park: 'Park a thought', follow: 'Follow the dot', ground: '5·4·3·2·1', checkout: 'Check out' };
+
+function nav(id) { if (location.hash.slice(1) === id) route(); else location.hash = id; }
+function route() {
+  let id = location.hash.slice(1) || 'home';
+  if (!document.getElementById('v-' + id)) id = 'home';
+  if (flow.active && id !== flow.steps[flow.i]) flow.active = false;
+  if (!flow.active && (id === 'checkin' || id === 'checkout')) { id = 'home'; history.replaceState(null, '', '#home'); }
+  if (current && views[current] && views[current].leave) views[current].leave();
+  $$('.view').forEach(v => { v.hidden = v.id !== 'v-' + id; });
+  current = id;
+  if (views[id] && views[id].enter) views[id].enter({ flow: flow.active });
+  window.scrollTo(0, 0);
+  renderFlowBar();
+}
+function flowStart() { flow.active = true; flow.i = 0; flow.before = flow.after = null; Sound.ensure(); nav(flow.steps[0]); }
+function flowNext() {
+  if (!flow.active) return;
+  flow.i++;
+  if (flow.i >= flow.steps.length) { flow.active = false; nav('home'); return; }
+  nav(flow.steps[flow.i]);
+}
+function renderFlowBar() {
+  const bar = $('#flowbar');
+  bar.hidden = !flow.active;
+  if (!flow.active) return;
+  $('#fb-label').innerHTML = 'Reset · <strong>' + stepNames[flow.steps[flow.i]] + '</strong>';
+  $('#fb-dots').innerHTML = flow.steps.map((_, k) => `<i class="${k <= flow.i ? 'on' : ''}"></i>`).join('');
+  $('#fb-skip').hidden = flow.steps[flow.i] === 'checkout';
+}
+$('#fb-skip').addEventListener('click', flowNext);
+$('#fb-stop').addEventListener('click', () => { flow.active = false; nav('home'); });
+$('#start-reset').addEventListener('click', flowStart);
+window.addEventListener('hashchange', route);
+
+/* ---------- check-in / check-out ---------- */
+function buildScale(el, onPick) {
+  el.innerHTML = '';
+  for (let n = 1; n <= 5; n++) {
+    const b = document.createElement('button');
+    b.textContent = n; b.setAttribute('aria-label', n + ' of 5');
+    b.addEventListener('click', () => onPick(n));
+    el.appendChild(b);
+  }
+}
+buildScale($('#ci-scale'), n => { flow.before = n; flowNext(); });
+buildScale($('#co-scale'), n => {
+  flow.after = n;
+  const b = flow.before, msg = $('#co-text');
+  let line;
+  if (b == null) line = 'Thanks for checking in.';
+  else if (n < b) line = 'A bit quieter than when you started.';
+  else if (n === b) line = "Same is fine. You still gave your head five minutes off the feed.";
+  else line = "Some days the noise doesn't budge. Brown noise and slow lines are here if you want to stay a while.";
+  msg.innerHTML = (b != null ? `<strong>${b} → ${n}</strong>` : '') + line;
+  $('#co-ask').hidden = true; $('#co-result').hidden = false;
+  flow.active = false; renderFlowBar();
+});
+views.checkout = { enter() { $('#co-ask').hidden = false; $('#co-result').hidden = true; } };
+
+/* ---------- breathe ---------- */
+views.breathe = (() => {
+  const P = {
+    long: { note: 'In for 4, out for 6. The long exhale is the part that settles you.',
+            phases: [['Breathe in', 4, 0, 1], ['Breathe out', 6, 1, 0]] },
+    sigh: { note: 'Two sips in through the nose, then one long, slow sigh out.',
+            phases: [['In', 2, 0, 0.8], ['In a little more', 1, 0.8, 1], ['Long sigh out', 6, 1, 0]] },
+    box:  { note: 'In, hold, out, hold. Four counts each.',
+            phases: [['Breathe in', 4, 0, 1], ['Hold', 4, 1, 1], ['Breathe out', 4, 1, 0], ['Hold', 4, 0, 0]] }
+  };
+  const disc = $('#b-disc'), phaseEl = $('#b-phase'), countEl = $('#b-count'), leftEl = $('#b-left'),
+        startBtn = $('#b-start'), noteEl = $('#b-note'), tonesBtn = $('#b-tones'), buzzBtn = $('#b-buzz');
+  let pat = 'long', mins = 3, state = 'idle', raf = 0, last = 0, total = 0, idx = 0, pt = 0, flowMode = false, timer = 0;
+  let tones = store.get('tones', false), haptic = store.get('buzz', false);
+  const ease = x => 0.5 - 0.5 * Math.cos(Math.PI * x);
+  const setScale = v => { disc.style.transform = `scale(${(0.42 + 0.58 * v).toFixed(4)})`; };
+
+  if (canVibrate) buzzBtn.hidden = false;
+  tonesBtn.setAttribute('aria-pressed', String(tones));
+  buzzBtn.setAttribute('aria-pressed', String(haptic));
+  tonesBtn.addEventListener('click', () => { tones = !tones; store.set('tones', tones); tonesBtn.setAttribute('aria-pressed', String(tones)); if (tones) Sound.ensure(); });
+  buzzBtn.addEventListener('click', () => { haptic = !haptic; store.set('buzz', haptic); buzzBtn.setAttribute('aria-pressed', String(haptic)); if (haptic) buzz(30); });
+
+  function sync() {
+    $$('#b-patterns .chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === pat)));
+    $$('#b-lengths .chip').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.m === mins)));
+    noteEl.textContent = P[pat].note;
+  }
+  $$('#b-patterns .chip').forEach(b => b.addEventListener('click', () => { pat = b.dataset.p; sync(); stop(); reset(); }));
+  $$('#b-lengths .chip').forEach(b => b.addEventListener('click', () => { mins = +b.dataset.m; sync(); updLeft(); }));
+
+  function cue(ph) {
+    const up = ph[3] > ph[2], down = ph[3] < ph[2];
+    if (tones) { if (up) Sound.tone(196, 262, ph[1] * 0.95, 0.05); else if (down) Sound.tone(262, 196, ph[1] * 0.95, 0.05); }
+    if (haptic) buzz(up ? 45 : down ? [25, 70, 25] : 15);
+  }
+  function updLeft() {
+    if (state === 'idle') { leftEl.textContent = mins ? mins + ' min' : 'No timer'; return; }
+    if (state === 'done') { leftEl.textContent = ''; return; }
+    if (!mins) { leftEl.textContent = fmt(total); return; }
+    const rem = mins * 60 - total;
+    leftEl.textContent = rem > 0 ? fmt(rem) + ' left' : 'Finishing this breath';
+  }
+  function reset() {
+    state = 'idle'; idx = 0; pt = 0; total = 0; setScale(0);
+    phaseEl.textContent = 'Ready when you are'; countEl.textContent = ''; startBtn.textContent = 'Start'; updLeft();
+  }
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    const phases = P[pat].phases;
+    let ph = phases[idx];
+    pt += dt; total += dt;
+    if (pt >= ph[1]) {
+      pt -= ph[1]; idx++;
+      if (idx >= phases.length) { idx = 0; if (mins && total >= mins * 60) return finish(); }
+      ph = phases[idx]; phaseEl.textContent = ph[0]; cue(ph);
+    }
+    setScale(ph[2] + (ph[3] - ph[2]) * ease(Math.min(1, pt / ph[1])));
+    countEl.textContent = Math.max(1, Math.ceil(ph[1] - pt));
+    updLeft();
+    raf = requestAnimationFrame(frame);
+  }
+  function run() {
+    if (tones) Sound.ensure();
+    if (state === 'idle') { const ph = P[pat].phases[0]; phaseEl.textContent = ph[0]; cue(ph); }
+    state = 'running'; startBtn.textContent = 'Pause';
+    last = performance.now(); keepAwake(true);
+    raf = requestAnimationFrame(frame);
+  }
+  function stop() { cancelAnimationFrame(raf); keepAwake(false); }
+  function finish() {
+    stop(); state = 'done'; setScale(0);
+    phaseEl.textContent = 'Done.'; countEl.textContent = 'Notice how you feel.'; startBtn.textContent = 'Again'; updLeft();
+    if (flowMode) timer = setTimeout(flowNext, 2400);
+  }
+  startBtn.addEventListener('click', () => {
+    if (state === 'running') { stop(); state = 'paused'; startBtn.textContent = 'Resume'; phaseEl.textContent = 'Paused'; }
+    else if (state === 'paused') { phaseEl.textContent = P[pat].phases[idx][0]; run(); }
+    else { if (state === 'done') reset(); run(); }
+  });
+
+  sync(); reset();
+  return {
+    enter(o) {
+      flowMode = o.flow;
+      $('#b-controls').hidden = flowMode;
+      if (flowMode) { pat = 'long'; mins = 1; sync(); reset(); timer = setTimeout(run, 1000); }
+      else reset();
+    },
+    leave() { clearTimeout(timer); stop(); reset(); }
+  };
+})();
+
+/* ---------- park a thought ---------- */
+views.park = (() => {
+  const stream = $('#p-stream'), input = $('#p-input'), countEl = $('#p-count'), empty = $('#p-empty'),
+        wrap = $('#p-savedwrap'), list = $('#p-saved'), sum = $('#p-savedsum'), saveBtn = $('#p-save'), doneBtn = $('#p-done');
+  const prompts = ["What's looping?", 'Something you need to do', 'Something someone said', 'A thing from the feed', 'A worry about later', 'A song stuck in your head'];
+  let released = 0, saved = store.get('saved', []), pi = 0, ptimer = 0, stimer = 0;
+
+  function floatAway(text) {
+    empty.style.opacity = '0';
+    const el = document.createElement('div');
+    el.className = 'thought'; el.textContent = text;
+    el.style.transform = 'translate(-9999px,0)';
+    stream.appendChild(el);
+    const W = stream.clientWidth, H = stream.clientHeight, w = el.offsetWidth, h = el.offsetHeight;
+    const y = H * 0.12 + Math.random() * Math.max(10, H * 0.7 - h);
+    if (reduceMotion || !el.animate) {
+      el.style.transform = `translate(${(W - w) / 2}px,${y}px)`;
+      el.style.transition = 'opacity 5s ease-in'; requestAnimationFrame(() => { el.style.opacity = '0'; });
+      setTimeout(() => el.remove(), 5200); return;
+    }
+    const kf = [], seed = Math.random() * 6;
+    for (let i = 0; i <= 12; i++) {
+      const p = i / 12;
+      const x = -w - 30 + (W + w + 60) * p;
+      const yy = y + Math.sin(p * Math.PI * 2 + seed) * 12;
+      const rot = Math.sin(p * 5 + seed) * 2.5;
+      const op = p < 0.06 ? p / 0.06 : p > 0.82 ? (1 - p) / 0.18 : 1;
+      kf.push({ offset: p, transform: `translate(${x.toFixed(1)}px,${yy.toFixed(1)}px) rotate(${rot.toFixed(2)}deg)`, opacity: op });
+    }
+    const a = el.animate(kf, { duration: 16000 + Math.random() * 5000, easing: 'linear', fill: 'forwards' });
+    a.onfinish = () => { el.remove(); if (!stream.querySelector('.thought')) empty.style.opacity = '1'; };
+  }
+  function renderSaved() {
+    wrap.hidden = saved.length === 0;
+    sum.textContent = `Saved for later (${saved.length})`;
+    list.innerHTML = '';
+    saved.forEach((s, i) => {
+      const li = document.createElement('li');
+      const sp = document.createElement('span'); sp.textContent = s.text;
+      const x = document.createElement('button'); x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Remove');
+      x.addEventListener('click', () => { saved.splice(i, 1); store.set('saved', saved); renderSaved(); });
+      li.append(sp, x); list.appendChild(li);
+    });
+  }
+  function updCount() {
+    countEl.textContent = released === 0 ? '' : released === 1 ? '1 thought floated by.' : released + ' thoughts floated by.';
+  }
+  $('#p-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const t = input.value.trim(); if (!t) { input.focus(); return; }
+    floatAway(t); released++; updCount(); input.value = '';
+  });
+  saveBtn.addEventListener('click', () => {
+    const t = input.value.trim(); if (!t) { input.focus(); return; }
+    saved.push({ text: t, at: Date.now() }); store.set('saved', saved); renderSaved(); input.value = '';
+    saveBtn.textContent = 'Saved. It will wait.';
+    clearTimeout(stimer); stimer = setTimeout(() => { saveBtn.textContent = 'Save for later instead'; }, 2200);
+  });
+  $('#p-clear').addEventListener('click', () => { saved = []; store.set('saved', saved); renderSaved(); });
+  doneBtn.addEventListener('click', flowNext);
+
+  renderSaved();
+  return {
+    enter(o) {
+      doneBtn.hidden = !o.flow;
+      released = 0; updCount();
+      ptimer = setInterval(() => {
+        if (document.activeElement === input || input.value) return;
+        pi = (pi + 1) % prompts.length; input.placeholder = prompts[pi];
+      }, 4000);
+    },
+    leave() {
+      clearInterval(ptimer);
+      $$('.thought', stream).forEach(t => t.remove()); empty.style.opacity = '1';
+    }
+  };
+})();
+
+/* ---------- follow the dot ---------- */
+views.follow = (() => {
+  const box = $('#f-box'), cv = $('#f-canvas'), stat = $('#f-stat');
+  let ctx, w = 1, h = 1, raf = 0, last = 0, t = 0, drift = 0, speed = 0.06, trail = [],
+      ptr = { x: 0, y: 0, active: false, at: 0 }, glow = 0, together = 0, elapsed = 0, flowMode = false, timer = 0, ro = null, ended = false,
+      cA, cB, statTick = 0;
+  const FLOW_SECONDS = 90;
+
+  function size() { const r = fitCanvas(box, cv); ctx = r.ctx; w = r.w; h = r.h; trail = []; }
+  const pos = tt => ({ x: w / 2 + w * 0.38 * Math.sin(3 * tt + drift), y: h / 2 + h * 0.34 * Math.sin(2 * tt) });
+  function local(e) { const r = box.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  box.addEventListener('pointerdown', e => { const p = local(e); ptr = { ...p, active: true, at: performance.now() }; });
+  box.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse' && !ptr.active) return;
+    const p = local(e); ptr = { ...p, active: true, at: performance.now() };
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => box.addEventListener(ev, () => { ptr.active = false; }));
+
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    t += dt * speed; drift += dt * 0.012; elapsed += dt;
+    const p = pos(t);
+    const lp = trail[trail.length - 1];
+    if (!lp || Math.hypot(lp.x - p.x, lp.y - p.y) > 2.5) { trail.push(p); if (trail.length > 70) trail.shift(); }
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.lineCap = 'round';
+    for (let i = 1; i < trail.length; i++) {
+      ctx.strokeStyle = rgba(cB, (i / trail.length) * 0.4);
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(trail[i - 1].x, trail[i - 1].y); ctx.lineTo(trail[i].x, trail[i].y); ctx.stroke();
+    }
+    const near = ptr.active && now - ptr.at < 1500 && Math.hypot(ptr.x - p.x, ptr.y - p.y) < 48;
+    glow += ((near ? 1 : 0) - glow) * Math.min(1, dt * 3);
+    if (near) together += dt;
+
+    const halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 46);
+    halo.addColorStop(0, rgba(cA, 0.32 + 0.3 * glow)); halo.addColorStop(1, rgba(cA, 0));
+    ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(p.x, p.y, 46, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = rgba(cA, 0.15 + 0.55 * glow); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 18 + 14 * glow, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = rgba(cA, 1); ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, Math.PI * 2); ctx.fill();
+
+    if (now - statTick > 250) {
+      statTick = now;
+      stat.textContent = together >= 1 ? 'Together for ' + fmt(together) : 'Follow with a finger, or just your eyes';
+    }
+    if (flowMode && !ended && elapsed >= FLOW_SECONDS) {
+      ended = true; stat.textContent = 'Good. Moving on.';
+      timer = setTimeout(flowNext, 1500);
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  $$('#f-speeds .chip').forEach(b => b.addEventListener('click', () => {
+    speed = +b.dataset.s;
+    $$('#f-speeds .chip').forEach(c => c.setAttribute('aria-pressed', String(c === b)));
+  }));
+  return {
+    enter(o) {
+      flowMode = o.flow; ended = false; together = 0; elapsed = 0; t = Math.random() * 6; glow = 0;
+      cA = rgb(cssVar('--accent')); cB = rgb(cssVar('--accent2'));
+      size();
+      if (window.ResizeObserver) { ro = new ResizeObserver(size); ro.observe(box); }
+      last = performance.now(); keepAwake(true);
+      raf = requestAnimationFrame(frame);
+    },
+    leave() { cancelAnimationFrame(raf); clearTimeout(timer); if (ro) ro.disconnect(); keepAwake(false); }
+  };
+})();
+
+/* ---------- slow lines ---------- */
+views.lines = (() => {
+  const box = $('#l-box'), cv = $('#l-canvas'), meter = $('#l-meter'), hint = $('#l-hint');
+  const LIFE = 9000, SLOW_AT = 0.6; // px per ms where glow reaches zero
+  let ctx, w = 1, h = 1, raf = 0, segs = [], ripples = [], down = false, lx = 0, ly = 0, lt = 0, v = 0, slowNow = 0,
+      lastMove = 0, ro = null, cFast, cSlow, hintTick = 0, drewAny = false;
+
+  function size() { const r = fitCanvas(box, cv); ctx = r.ctx; w = r.w; h = r.h; }
+  function local(e, r) { return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  box.addEventListener('pointerdown', e => {
+    const r = box.getBoundingClientRect(), p = local(e, r);
+    down = true; lx = p.x; ly = p.y; lt = e.timeStamp; v = 0.05;
+    try { box.setPointerCapture(e.pointerId); } catch (_) {}
+    ripples.push({ x: p.x, y: p.y, t: performance.now() });
+  });
+  box.addEventListener('pointermove', e => {
+    if (!down) return;
+    const r = box.getBoundingClientRect();
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for (const ev of (evs.length ? evs : [e])) {
+      const p = local(ev, r);
+      const d = Math.hypot(p.x - lx, p.y - ly);
+      if (d < 0.6) continue;
+      const dt = Math.max(1, ev.timeStamp - lt);
+      v = v * 0.82 + (d / dt) * 0.18;
+      const s = clamp(1 - v / SLOW_AT, 0, 1);
+      segs.push({ x1: lx, y1: ly, x2: p.x, y2: p.y, s, t: performance.now() });
+      lx = p.x; ly = p.y; lt = ev.timeStamp; slowNow = s;
+    }
+    lastMove = performance.now(); drewAny = true;
+  });
+  ['pointerup', 'pointercancel'].forEach(ev => box.addEventListener(ev, () => { down = false; }));
+
+  function line(s) { ctx.beginPath(); ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2); ctx.stroke(); }
+  function frame(now) {
+    ctx.clearRect(0, 0, w, h);
+    while (segs.length && now - segs[0].t > LIFE) segs.shift();
+    if (segs.length > 5000) segs.splice(0, segs.length - 5000);
+    ctx.lineCap = 'round';
+    for (const s of segs) {
+      const f = 1 - (now - s.t) / LIFE, c = lerpC(cFast, cSlow, s.s);
+      if (s.s > 0.35) { ctx.strokeStyle = rgba(c, 0.09 * f * s.s); ctx.lineWidth = 6 + 16 * s.s; line(s); }
+      ctx.strokeStyle = rgba(c, (0.1 + 0.85 * Math.pow(s.s, 1.4)) * f); ctx.lineWidth = 1 + 3.2 * s.s; line(s);
+    }
+    ripples = ripples.filter(r => now - r.t < 2200);
+    for (const r of ripples) {
+      const k = (now - r.t) / 2200;
+      ctx.strokeStyle = rgba(cSlow, 0.35 * (1 - k)); ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(r.x, r.y, 8 + 70 * k, 0, Math.PI * 2); ctx.stroke();
+    }
+    const moving = down && now - lastMove < 180;
+    const shown = moving ? slowNow : 0;
+    meter.style.width = (shown * 100).toFixed(0) + '%';
+    if (now - hintTick > 400) {
+      hintTick = now;
+      if (moving) hint.textContent = slowNow < 0.35 ? 'Slower…' : slowNow < 0.75 ? 'Slower still…' : 'There. Stay that slow.';
+      else if (!down) hint.textContent = drewAny ? '' : 'Put a finger down and move slowly';
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  $('#l-clear').addEventListener('click', () => { segs = []; ripples = []; });
+  return {
+    enter() {
+      cFast = rgb(cssVar('--accent2')); cSlow = rgb(cssVar('--warm'));
+      size();
+      if (window.ResizeObserver) { ro = new ResizeObserver(size); ro.observe(box); }
+      raf = requestAnimationFrame(frame);
+    },
+    leave() { cancelAnimationFrame(raf); if (ro) ro.disconnect(); segs = []; ripples = []; down = false; drewAny = false; }
+  };
+})();
+
+/* ---------- 5-4-3-2-1 ---------- */
+views.ground = (() => {
+  const STEPS = [
+    [5, 'things you can see', 'Look slowly. Small things count: a corner, a shadow, a colour.'],
+    [4, 'things you can feel', 'Your feet on the floor, the chair under you, fabric, air on your skin.'],
+    [3, 'things you can hear', 'Near and far. The quiet ones count too.'],
+    [2, 'things you can smell', "If nothing comes, think of two smells you like."],
+    [1, 'thing you can taste', "Or one thing that's okay, right now."]
+  ];
+  const stage = $('#g-stage'), end = $('#g-end'), num = $('#g-num'), label = $('#g-label'), hintEl = $('#g-hint'),
+        taps = $('#g-taps'), prog = $('#g-prog'), endBtns = $('#g-endbtns');
+  let i = 0, flowMode = false, timer = 0;
+  function render() {
+    const [n, l, hnt] = STEPS[i];
+    num.textContent = n; num.style.animation = 'none'; void num.offsetWidth; num.style.animation = '';
+    label.textContent = l; hintEl.textContent = hnt;
+    prog.innerHTML = STEPS.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('');
+    taps.innerHTML = '';
+    let found = 0;
+    for (let k = 0; k < n; k++) {
+      const b = document.createElement('button');
+      b.setAttribute('aria-label', 'Found one');
+      b.addEventListener('click', () => {
+        const next = taps.querySelector('button:not(.on)'); if (!next) return;
+        next.classList.add('on'); found++;
+        if (found === n) timer = setTimeout(advance, 800);
+      });
+      taps.appendChild(b);
+    }
+  }
+  function advance() {
+    i++;
+    if (i >= STEPS.length) { stage.hidden = true; end.hidden = false; if (flowMode) timer = setTimeout(flowNext, 2600); return; }
+    render();
+  }
+  $('#g-again').addEventListener('click', () => { i = 0; stage.hidden = false; end.hidden = true; render(); });
+  return {
+    enter(o) { flowMode = o.flow; endBtns.hidden = flowMode; i = 0; stage.hidden = false; end.hidden = true; render(); },
+    leave() { clearTimeout(timer); }
+  };
+})();
+
+/* ---------- rest your eyes ---------- */
+views.eyes = (() => {
+  const STEPS = [
+    ['Look far away', 'Find the farthest thing you can see: out a window, the end of a hallway. Let your eyes rest there.', 20],
+    ['Close your eyes', 'Cup your palms over them. Warm and dark, nothing to do. The chime will tell you when.', 30],
+    ['Look around slowly', 'Eyes open. Up, down, left, right. No rush.', 20],
+    ['Blink', 'Ten slow blinks.', 15]
+  ];
+  const dim = $('#e-dim'), nEl = $('#e-n'), title = $('#e-title'), text = $('#e-text'), bar = $('#e-bar'), stopBtn = $('#e-stop');
+  let i = 0, t = 0, last = 0, raf = 0, running = false;
+  function show() {
+    nEl.textContent = `${i + 1} of ${STEPS.length}`;
+    title.textContent = STEPS[i][0]; text.textContent = STEPS[i][1]; bar.style.width = '0%';
+    bar.parentElement.hidden = false;
+  }
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now; t += dt;
+    bar.style.width = Math.min(100, t / STEPS[i][2] * 100) + '%';
+    if (t >= STEPS[i][2]) {
+      i++; t = 0; Sound.chime(); buzz(60);
+      if (i >= STEPS.length) { return finish(); }
+      show();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  function start() {
+    Sound.ensure(); i = 0; t = 0; running = true;
+    dim.hidden = false; document.body.style.overflow = 'hidden';
+    stopBtn.textContent = 'Stop'; show();
+    keepAwake(true); last = performance.now(); raf = requestAnimationFrame(frame);
+  }
+  function finish() {
+    running = false; keepAwake(false);
+    nEl.textContent = ''; title.textContent = 'Welcome back.'; text.textContent = 'Take the next thing slowly.';
+    bar.parentElement.hidden = true; stopBtn.textContent = 'Close';
+  }
+  function close() {
+    cancelAnimationFrame(raf); running = false; keepAwake(false);
+    dim.hidden = true; document.body.style.overflow = '';
+  }
+  $('#e-start').addEventListener('click', start);
+  stopBtn.addEventListener('click', close);
+  return { leave: close };
+})();
+
+/* ---------- go ---------- */
+route();
+})();
+</script>
+</body>
+</html>
