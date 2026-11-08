@@ -1,71 +1,45 @@
-# Journal of Applied Memetics
+# UnscrollMe
 
-**Memes for academia.** Ready-to-use memes for scientific talks, built only on public-domain and openly licensed images. Pick one, change the text, and download it as a PNG with the image credit already in the corner.
+*Unwind, then begin.*
 
-The site is a single static page (`index.html`) that reads the library from `data/memes.js`. Submissions arrive as GitHub issues; when a maintainer accepts one, a workflow adds the image and its credit to the repository and redeploys the site.
+Small, quiet activities for an ADHD mind to come down after a scrolling session. One self-contained page: no build step, no accounts, no tracking, and no external requests (fonts are embedded, so it also works offline once loaded).
 
-## Set up
+## What's inside
 
-1. Create a public repository (for example `applied-memetics`) and push these files to the `main` branch.
-2. **Settings → Pages → Build and deployment → Source: GitHub Actions.** The `Deploy site` workflow publishes the site on every push.
-3. **Issues → Labels:** create two labels, `submission` and `accepted`.
-4. If you use a custom domain, set `JAM_REPO` near the top of the script in `index.html` to `your-username/your-repo`. On `*.github.io` the repository is detected automatically.
+- **The reset** — unwind, then get one thing started. Check in (how loud is your head, 1–5), one minute of breathing, park what's looping, 5-4-3-2-1 grounding, then:
+  - **Land**: pick one thing (your parked thoughts are offered as options) and write its first step, small enough to do in two minutes.
+  - **Launch**: 30 seconds of light activation (stand, quick breaths, shake out hands, roll shoulders), then choose 5, 10 or 25 minutes.
+  - **Focus**: a timer with your task and first step on screen, optional brown noise, +5 min, and a box to park stray thoughts without leaving.
+  - **Finish**: shows what you started, how long you focused, the before/after number, and how many things you've started here. "Another round" gives a 1-minute breathing reset before the next timer.
+- **One thing** — the Land → Launch → Focus path on its own, for when you're already calm enough.
+- **Breathe** — a breathing circle with three patterns (long exhale 4·6, double-in sigh, box), 1/3/5 min or untimed, optional soft tones and vibration so you can close your eyes.
+- **Park a thought** — type what's looping and let it drift across a stream, or save it to a "for later" list (kept in this browser only).
+- **Follow the dot** (standalone) — one slow Lissajous path to track with a finger or your eyes; it glows while you stay with it.
+- **Slow lines** — draw with a finger; fast strokes barely show, slow strokes glow. Everything fades on its own.
+- **5 · 4 · 3 · 2 · 1** — tap-through sensory grounding.
+- **Rest your eyes** — 90 seconds off the screen, dark overlay, a chime marks each step.
+- **Brown noise** — toggle in the header, generated in the browser.
 
-If the publish workflow fails with a permissions error, check **Settings → Actions → General → Workflow permissions** and allow read and write. If `main` is protected, allow GitHub Actions to push to it.
+It follows the system light/dark setting and respects reduced-motion preferences.
 
-To try it locally, open `index.html` in a browser. The gallery images load from Wikimedia Commons, so you need to be online.
+## Publish on GitHub Pages
 
-## The starter library
+1. On github.com, create a new public repository, e.g. `unscrollme`.
+2. Upload `index.html` and this `README.md` (Add file → Upload files → Commit).
+3. Go to **Settings → Pages**. Under *Build and deployment*, set **Source: Deploy from a branch**, **Branch: `main`**, folder **`/ (root)`**, then Save.
+4. After a minute the site is live at `https://<your-username>.github.io/unscrollme/`.
 
-The twelve starter memes are built on public-domain paintings (Friedrich, Caravaggio, Géricault, Bruegel, Munch, Rembrandt, David, Hokusai, Titian, Vermeer) and public-domain NASA images. The images are loaded from Wikimedia Commons, and each meme links to its Commons page. Famous meme templates such as Drake or Distracted Boyfriend are not here, because their images are copyrighted and not openly licensed.
+Or from a terminal:
 
-## How submissions work
-
-1. Someone makes a meme from their own photo or an openly licensed image and clicks **Open submission on GitHub** on the site, which opens the prefilled form in `.github/ISSUE_TEMPLATE/submit-meme.yml`.
-2. They drag the image in, state the image licence, creator and source link, and submit. The issue gets the `submission` label.
-3. A maintainer checks the joke and the licence, then adds the `accepted` label.
-4. `.github/workflows/publish-meme.yml` runs `.github/scripts/ingest_meme.py`, which downloads the image, saves it as `memes/JAM-XXXX.ext`, appends the entry to `data/memes.js`, commits, redeploys the site and closes the issue with a thank-you.
-
-To reject a submission, close the issue with a kind comment.
-
-## Entry format
-
-Starter memes (caption drawn over a Commons image):
-
-```json
-{
-  "id": "JAM-0011",
-  "top": "Revising the paper",
-  "bottom": "round four",
-  "slot": "Limitations",
-  "tags": ["reviewers", "writing"],
-  "work": "Sisyphus",
-  "creator": "Titian",
-  "year": "1548–49",
-  "licence": "Public domain",
-  "img": "https://upload.wikimedia.org/.../960px-Punishment_sisyph.jpg",
-  "hires": "https://upload.wikimedia.org/.../1280px-Punishment_sisyph.jpg",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Punishment_sisyph.jpg"
-}
+```bash
+git init && git add . && git commit -m "UnscrollMe"
+git branch -M main
+git remote add origin https://github.com/<your-username>/unscrollme.git
+git push -u origin main
 ```
 
-Submitted memes (finished image stored in the repository):
+then enable Pages as in step 3.
 
-```json
-{
-  "id": "JAM-0013",
-  "title": "When the robot works in simulation",
-  "slot": "Results",
-  "image": "memes/JAM-0013.png",
-  "licence": "CC BY-SA",
-  "creator": "Jane Doe",
-  "source_url": "https://commons.wikimedia.org/wiki/File:...",
-  "contributor": "@someone"
-}
-```
+## Note
 
-Parts of the talk: Title, Motivation, Related work, Methods, Demo, Results, Limitations, Future work, Q&A, Acknowledgements.
-
-## Content policy
-
-Every image must be public domain, openly licensed for reuse, or the submitter's own. Each meme carries its credit, and downloads keep it in the corner. Punch up, never down.
+This is a calm-down tool, not treatment.
